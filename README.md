@@ -242,3 +242,8 @@ curl -X POST --location "http://localhost:8000/webservices/rest.php?version=1.4"
   \"output_fields\": \"title,status,team_id_friendlyname,agent_id_friendlyname,solution\"
 }"
 ```
+### Интеграция с Zabbix
+Взяв из этого проекта файл media_itop.yaml, который является модифицированной версией эого файла вот с этого источника:
+https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/itop/media_itop.yaml
+можно легко интегрировать данный модуль с ситемой мониторинга Zabbix
+

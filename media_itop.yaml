@@ -50,6 +50,10 @@ zabbix_export:
         13:
           name: itop_user
           value: '<PLACE LOGIN>'
+        14:
+          name: itop_context
+          value: '<PLACE CONTEXT for monitorng - for example demo_context>'
+
       script: |
         var Itop = {
             params: {},
@@ -78,24 +82,22 @@ zabbix_export:
             },
         
             setCreatePayload: function () {
-                json_data.operation = 'core/create';
-                json_data.fields.org_id = Itop.params.organization_id;
-                json_data.fields.title = params.alert_subject;
-                json_data.fields.description = params.alert_message.replace('<', '&lt;')
+                json_data.operation = 'monitoring/alarm';
+                json_data.ci_key = params.itop_ci;     
+                json_data.state = params.event_value;
+                json_data.message = params.alert_subject;
+                json_data.description = params.alert_message.replace('<', '&lt;')
                     .replace('>', '&gt;')
-                    .replace(/(?:\r\n|\r|\n)/g, '<br>');
+                    .replace(/(?:\r\n|\r|\n)/g, '<br>');      
             },
         
             setUpdatePayload: function () {
-                json_data.operation = 'core/update';
                 json_data.key = Itop.params.id;
                 json_data.fields.title = params.alert_subject;
-                json_data.fields[Itop.params.log] = {
-                    add_item: {
-                        message: params.alert_subject + '\n' + params.alert_message,
-                        format: 'text'
-                    }
-                };
+                json_data.operation = 'monitoring/alarm';
+                json_data.ci_key = params.itop_ci;     
+                json_data.state = params.event_value;
+                json_data.message = params.alert_subject + '\n' + params.alert_message;
             },
         
             request: function (data) {
@@ -201,6 +203,7 @@ zabbix_export:
             Itop.setProxy(params.HTTPProxy);
         
             json_data.operation = '';
+            json_data.context = Itop.params.context;
             json_data.class = Itop.params.class;
             json_data.comment = Itop.params.comment;
             json_data.output_fields = 'id, friendlyname';
