@@ -53,6 +53,9 @@ zabbix_export:
         15:
           name: itop_context
           value: '<PLACE CONTEXT for monitorng - for example demo_context>'
+        16:
+          name: itop_ci
+          value: '{HOST.NAME}'
 
       script: |
         var Itop = {
