@@ -50,7 +50,7 @@ zabbix_export:
         13:
           name: itop_user
           value: '<PLACE LOGIN>'
-        14:
+        15:
           name: itop_context
           value: '<PLACE CONTEXT for monitorng - for example demo_context>'
 
