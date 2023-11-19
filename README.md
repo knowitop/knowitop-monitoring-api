@@ -243,7 +243,8 @@ curl -X POST --location "http://localhost:8000/webservices/rest.php?version=1.4"
 }"
 ```
 ### Интеграция с Zabbix
-Взяв из этого проекта файл media_itop.yaml, который является модифицированной версией эого файла вот с этого источника:
+Взяв из этого проекта файл media_itop.yaml, который является модифицированной версией конфигурационного файла вот с этого источника:
 https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/itop/media_itop.yaml
-можно легко интегрировать данный модуль с ситемой мониторинга Zabbix
+можно легко интегрировать данный модуль с системой мониторинга Zabbix следую вот этой инструкции:
+https://www.zabbix.com/integrations/itop
 
