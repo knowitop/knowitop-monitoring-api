@@ -56,6 +56,7 @@ class MonitoringServices implements iRestServiceProvider
 				$sCIKey = RestUtils::GetMandatoryParam($oParams, 'ci_key');
 				$iAlarmState = (int)RestUtils::GetMandatoryParam($oParams, 'state');
 				$sAlarmMessage = RestUtils::GetMandatoryParam($oParams, 'message');
+			        $sDescription = RestUtils::GetOptionalParam($oParams, 'description', $sAlarmMessage);
 				// $aAlarmFields = (array)RestUtils::GetOptionalParam($oParams, 'fields', array());
 
 				$aContextConfig = utils::GetCurrentModuleSetting($sContextName, array());
@@ -86,6 +87,7 @@ class MonitoringServices implements iRestServiceProvider
 					'alarm->ci_key' => $sCIKey,
 					'alarm->state' => $iAlarmState,
 					'alarm->message' => $sAlarmMessage,
+					'alarm->description' => $sDescription,
 				));
 				// $oMonitoringContext->SetAlarmFields($aAlarmFields);
 				if (!empty($aContextConfig['ci_oql']))
