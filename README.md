@@ -38,6 +38,7 @@ PHP 7, iTop 2.6 и выше (на более ранних версиях iTop р
   "ci_key": "Server2 (Grenoble)",
   "state": true,
   "message": "PROBLEM: host Server2 (Grenoble) unavailable",
+  "description": "Monitoring: Problem started at 10:35:00 on 2023.11.19<br>Problem name: HTTP service is down on Server2<br>Host: Server2 <br>Severity: Disaster<br>Operational data: Down (0)<br>Original problem ID: 178108686",
   "output_fields": "ref,title,status,team_id_friendlyname,agent_id_friendlyname,functionalcis_list"
 }
 ```
@@ -89,7 +90,7 @@ PHP 7, iTop 2.6 и выше (на более ранних версиях iTop р
                     'org_id' => array('name' => '$ci->org_id->name$'),
                     'caller_id' => 'SELECT Person WHERE org_id = $ci->org_id$ AND id = 2',
                     'title' => 'Авария: $alarm->message$',
-                    'description' => 'Авария: $alarm->message$ на КЕ $ci->name$',
+                    'description' => '$alarm->description$',
                     'service_id' => 2,
                 ),
             ),
@@ -165,7 +166,7 @@ OQL-запрос для поиска тикета. Найденный тикет
         'org_id' => array('name' => '$ci->org_id->name$'),
         'caller_id' => 'SELECT Person WHERE org_id = $ci->org_id$ AND id = 2',
         'title' => 'Авария: $alarm->message$',
-        'description' => 'Авария: $alarm->message$ на КЕ $ci->name$',
+        'description' => '$alarm->description$',
         'service_id' => 2,
     ),
 ),
@@ -224,6 +225,7 @@ json_data={
   "ci_key": "Server4",
   "state": 1,
   "message": "Server4 is down",
+  "description": "Server4 is down at 10:35:00 on 2023.11.19",
   "output_fields": "title,status,team_id_friendlyname,agent_id_friendlyname,solution"
 }
 ```
@@ -239,6 +241,7 @@ curl -X POST --location "http://localhost:8000/webservices/rest.php?version=1.4"
   \"ci_key\": \"Server4\",
   \"state\": 1,
   \"message\": \"Server4 is down\",
+  \"description\": \"Server4 is down at 10:35:00 on 2023.11.19\",
   \"output_fields\": \"title,status,team_id_friendlyname,agent_id_friendlyname,solution\"
 }"
 ```
