@@ -89,6 +89,7 @@ zabbix_export:
                 json_data.ci_key = params.itop_ci;     
                 json_data.state = params.event_value;
                 json_data.message = params.alert_subject;
+                json_data.itop_class = params.itop_class;
                 json_data.description = params.alert_message.replace('<', '&lt;')
                     .replace('>', '&gt;')
                     .replace(/(?:\r\n|\r|\n)/g, '<br>');      
@@ -99,6 +100,7 @@ zabbix_export:
                 json_data.fields.title = params.alert_subject;
                 json_data.operation = 'monitoring/alarm';
                 json_data.ci_key = params.itop_ci;     
+                json_data.itop_class = params.itop_class;
                 json_data.state = params.event_value;
                 json_data.message = params.alert_subject + '\n' + params.alert_message;
             },
