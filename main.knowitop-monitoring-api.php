@@ -59,7 +59,7 @@ class MonitoringServices implements iRestServiceProvider
 			        $sDescription = RestUtils::GetOptionalParam($oParams, 'description', $sAlarmMessage);
 				// $aAlarmFields = (array)RestUtils::GetOptionalParam($oParams, 'fields', array());
 
-				$aContextConfig = utils::GetCurrentModuleSetting($sContextName, array());
+				$aContextConfig = MetaModel::GetModuleSetting('knowitop-monitoring-api', $sContextName, array());
 				// $aContextConfig = $aConfig[$sContextName];
 				if (empty($aContextConfig) || !is_array($aContextConfig))
 				{

@@ -9,7 +9,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'knowitop-monitoring-api/0.1.0',
+	'knowitop-monitoring-api/0.1.1',
 	array(
 		// Identification
 		//
