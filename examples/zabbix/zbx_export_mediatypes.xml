@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2025-04-02T12:34:19Z</date>
+    <media_types>
+        <media_type>
+            <name>iTop (knowitop-monitoring-api)</name>
+            <type>WEBHOOK</type>
+            <parameters>
+                <parameter>
+                    <name>alert_message</name>
+                    <value>{ALERT.MESSAGE}</value>
+                </parameter>
+                <parameter>
+                    <name>alert_subject</name>
+                    <value>{ALERT.SUBJECT}</value>
+                </parameter>
+                <parameter>
+                    <name>event_recovery_value</name>
+                    <value>{EVENT.RECOVERY.VALUE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_source</name>
+                    <value>{EVENT.SOURCE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_value</name>
+                    <value>{EVENT.VALUE}</value>
+                </parameter>
+                <parameter>
+                    <name>itop_api_version</name>
+                    <value>1.3</value>
+                </parameter>
+                <parameter>
+                    <name>itop_ci</name>
+                    <value>{HOST.NAME}</value>
+                </parameter>
+                <parameter>
+                    <name>itop_comment</name>
+                    <value>Created by Zabbix action {ACTION.NAME}</value>
+                </parameter>
+                <parameter>
+                    <name>itop_context</name>
+                    <value>&lt;your-context-name&gt;</value>
+                </parameter>
+                <parameter>
+                    <name>itop_token</name>
+                    <value>&lt;your-auth-token&gt;</value>
+                </parameter>
+                <parameter>
+                    <name>itop_url</name>
+                    <value>&lt;you-itop-url&gt;</value>
+                </parameter>
+            </parameters>
+            <script>var Itop = {&#13;
+	params: {},&#13;
+&#13;
+	setParams: function (params) {&#13;
+		if (typeof params !== 'object') {&#13;
+			return;&#13;
+		}&#13;
+&#13;
+		Itop.params = params;&#13;
+		if (typeof Itop.params.url === 'string') {&#13;
+			if (!Itop.params.url.endsWith('/')) {&#13;
+				Itop.params.url += '/';&#13;
+			}&#13;
+&#13;
+			Itop.params.url += 'webservices/rest.php?version=' + encodeURIComponent(Itop.params.api_version);&#13;
+		}&#13;
+	},&#13;
+&#13;
+	setProxy: function (HTTPProxy) {&#13;
+		Itop.HTTPProxy = HTTPProxy;&#13;
+	},&#13;
+&#13;
+	setPayload: function () {&#13;
+		json_data.operation = 'monitoring/alarm';&#13;
+		json_data.ci_key = params.itop_ci;&#13;
+		json_data.state = params.event_value;&#13;
+		json_data.message = params.alert_subject;&#13;
+		json_data.description = params.alert_message.replace('&lt;', '&amp;lt;')&#13;
+			.replace('&gt;', '&amp;gt;')&#13;
+			.replace(/(?:\r\n|\r|\n)/g, '&lt;br&gt;');&#13;
+	},&#13;
+&#13;
+	request: function (data) {&#13;
+		['url', 'token', 'api_version'].forEach(function (field) {&#13;
+			if (typeof Itop.params !== 'object' || typeof Itop.params[field] === 'undefined' || Itop.params[field] === '' ) {&#13;
+				throw 'Required Itop param is not set: &quot;itop_' + field + '&quot;.';&#13;
+			}&#13;
+		});&#13;
+&#13;
+		var response,&#13;
+			url = Itop.params.url,&#13;
+			request = new CurlHttpRequest(),&#13;
+			object;&#13;
+&#13;
+		request.AddHeader('Content-Type: multipart/form-data');&#13;
+		if (Itop.params.token) {&#13;
+			request.AddHeader('Auth-Token: ' + Itop.params.token);&#13;
+		} else {&#13;
+			request.AddHeader('Authorization: Basic ' + btoa(Itop.params.user + ':' + Itop.params.password));&#13;
+		}&#13;
+&#13;
+&#13;
+		if (Itop.HTTPProxy) {&#13;
+			request.SetProxy(Itop.HTTPProxy);&#13;
+		}&#13;
+&#13;
+		if (typeof data !== 'undefined') {&#13;
+			data = JSON.stringify(data);&#13;
+		}&#13;
+&#13;
+		Zabbix.Log(4, '[ iTop Webhook ] Sending request: ' + url + '&amp;json_data=' + data);&#13;
+&#13;
+		response = request.Post(url + '&amp;json_data=' + encodeURIComponent(data));&#13;
+		var statusCode = request.Status();&#13;
+&#13;
+		Zabbix.Log(4, '[ iTop Webhook ] Received response with status code ' + statusCode + '\n' + response);&#13;
+&#13;
+		try {&#13;
+			response = JSON.parse(response);&#13;
+		}&#13;
+		catch (error) {&#13;
+			Zabbix.Log(4, '[ iTop Webhook ] Failed to parse response received from iTop');&#13;
+			throw 'Failed to parse response received from iTop.\nRequest status code ' +&#13;
+			statusCode + '. Check debug log for more information.';&#13;
+		}&#13;
+&#13;
+		if (statusCode &lt; 200 || statusCode &gt;= 300) {&#13;
+			throw 'Request failed with status code ' + statusCode + '. Check debug log for more information.';&#13;
+		}&#13;
+		else if (typeof response.code !== 'undefined' &amp;&amp; response.code !== 0) {&#13;
+			throw 'Request failed with iTop code ' + response.code + ': &quot;' +&#13;
+			response.message + '&quot;. Check debug log for more information.';&#13;
+		}&#13;
+		else {&#13;
+			if (typeof response.objects !== 'object') {&#13;
+				throw 'Request failed with iTop code ' + response.code + ': &quot;' +&#13;
+				response.message + '&quot;. Check debug log for more information.';&#13;
+			}&#13;
+&#13;
+			Object.keys(response.objects)&#13;
+				.forEach(function (key) {&#13;
+					object = response.objects[key];&#13;
+				});&#13;
+&#13;
+			return {&#13;
+				status: statusCode,&#13;
+				object: object&#13;
+			};&#13;
+		}&#13;
+	}&#13;
+};&#13;
+&#13;
+try {&#13;
+	var params = JSON.parse(value),&#13;
+		json_data = {},&#13;
+		itop_params = {},&#13;
+		result = {tags: {}},&#13;
+		required_params = [&#13;
+			'alert_subject', 'summary', 'event_recovery_value',&#13;
+			'event_source', 'event_value', 'action_name'&#13;
+		];&#13;
+&#13;
+	Object.keys(params)&#13;
+		.forEach(function (key) {&#13;
+			if (key.startsWith('itop_')) {&#13;
+				itop_params[key.substring(5)] = params[key];&#13;
+			}&#13;
+			else if (required_params.indexOf(key) !== -1 &amp;&amp; params[key] === '') {&#13;
+				throw 'Parameter &quot;' + key + '&quot; can\'t be empty.';&#13;
+			}&#13;
+		});&#13;
+&#13;
+	if ([0, 1, 2, 3].indexOf(parseInt(params.event_source)) === -1) {&#13;
+		throw 'Incorrect &quot;event_source&quot; parameter given: ' + params.event_source + '\nMust be 0-3.';&#13;
+	}&#13;
+&#13;
+	// Check {EVENT.VALUE} for trigger-based and internal events.&#13;
+	if (params.event_value !== '0' &amp;&amp; params.event_value !== '1'&#13;
+		&amp;&amp; (params.event_source === '0' || params.event_source === '3')) {&#13;
+		throw 'Incorrect &quot;event_value&quot; parameter given: ' + params.event_value + '\nMust be 0 or 1.';&#13;
+	}&#13;
+&#13;
+	if (params.event_source !== '0' &amp;&amp; params.event_recovery_value === '0') {&#13;
+		throw 'Recovery operations are supported only for trigger-based actions.';&#13;
+	}&#13;
+&#13;
+	Itop.setParams(itop_params);&#13;
+	Itop.setProxy(params.HTTPProxy);&#13;
+&#13;
+	json_data.operation = '';&#13;
+	json_data.context = Itop.params.context;&#13;
+	json_data.comment = Itop.params.comment;&#13;
+	json_data.output_fields = 'id, friendlyname';&#13;
+	json_data.fields = {};&#13;
+&#13;
+	// Create issue for non trigger-based events.&#13;
+	if (params.event_source !== '0' &amp;&amp; params.event_recovery_value !== '0') {&#13;
+		Itop.setPayload();&#13;
+		Itop.request(json_data);&#13;
+	}&#13;
+	// Create issue for trigger-based events.&#13;
+	else {&#13;
+		Itop.setPayload();&#13;
+&#13;
+		var response = Itop.request(json_data);&#13;
+&#13;
+		result.tags.__zbx_itop_id = response.object.key;&#13;
+		result.tags.__zbx_itop_key = response.object.fields.friendlyname;&#13;
+		result.tags.__zbx_itop_link = params.itop_url + (params.itop_url.endsWith('/') ? '' : '/') +&#13;
+			'pages/UI.php?operation=details&amp;class=' + encodeURIComponent(response.object.class) + '&amp;id=' +&#13;
+			encodeURIComponent(response.object.key);&#13;
+	}&#13;
+&#13;
+	return JSON.stringify(result);&#13;
+}&#13;
+catch (error) {&#13;
+	Zabbix.Log(3, '[ iTop Webhook ] ERROR: ' + error);&#13;
+	throw 'Sending failed: ' + error;&#13;
+}</script>
+            <process_tags>YES</process_tags>
+            <show_event_menu>YES</show_event_menu>
+            <event_menu_url>{EVENT.TAGS.__zbx_itop_link}</event_menu_url>
+            <event_menu_name>iTop: {EVENT.TAGS.__zbx_itop_key}</event_menu_name>
+        </media_type>
+    </media_types>
+</zabbix_export>
