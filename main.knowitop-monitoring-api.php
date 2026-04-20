@@ -56,6 +56,7 @@ class MonitoringServices implements iRestServiceProvider
 				$sCIKey = RestUtils::GetMandatoryParam($oParams, 'ci_key');
 				$iAlarmState = (int)RestUtils::GetMandatoryParam($oParams, 'state');
 				$sAlarmMessage = RestUtils::GetMandatoryParam($oParams, 'message');
+				$sItopClass = RestUtils::GetOptionalParam($oParams, 'class', 'Incident');
 			        $sDescription = RestUtils::GetOptionalParam($oParams, 'description', $sAlarmMessage);
 				// $aAlarmFields = (array)RestUtils::GetOptionalParam($oParams, 'fields', array());
 
@@ -82,7 +83,7 @@ class MonitoringServices implements iRestServiceProvider
 				};
 
 				$oMonitoringContext = new MonitoringContext($sContextName, $iAlarmState, $aContextConfig['actions_on_problem'],
-					$aContextConfig['actions_on_ok']);
+					$aContextConfig['actions_on_ok'], $sItopClass);
 				$oMonitoringContext->AddQueryParams(array(
 					'alarm->ci_key' => $sCIKey,
 					'alarm->state' => $iAlarmState,

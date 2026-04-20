@@ -43,16 +43,16 @@ class MonitoringContext
 	/** @var array */
 	private $aPerformedActions = array();
 
-	public function __construct(string $sName, int $iAlarmState, array $aActionsOnProblem, array $aActionsOnOk)
+	public function __construct(string $sName, int $iAlarmState, array $aActionsOnProblem, array $aActionsOnOk, string $sItopClass)
 	{
 		$this->sName = $sName;
 		$this->iAlarmState = $iAlarmState;
 		$this->aActionsOnProblem = $aActionsOnProblem;
 		$this->aActionsOnOk = $aActionsOnOk;
 		$this->oStateExecutor = new NotExistStateExecutor($this);
-		if (MetaModel::IsValidClass('Incident'))
+		if (MetaModel::IsValidClass($sItopClass))
 		{
-			$this->sTicketClass = 'Incident';
+			$this->sTicketClass = $sItopClass;
 		}
 	}
 
